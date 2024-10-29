@@ -1,14 +1,11 @@
 import random
 import math
+import matplotlib.pyplot as plt # pip install matplotlib
+import numpy as np # pip install numpy
+
 
 rows, cols = (20, 20)
-arr = [[0]*cols]*rows
-
-
-
-for r in range (rows):
-
-    print(*arr[r])
+window_surface = [["0" for _ in range(cols)] for _ in range(rows)]
 
 
 def simulate_meteorite():
@@ -45,10 +42,31 @@ def simulate_meteorite():
 
 def simulate_impact():
 
-    # determine location of impact
+    impact_x_coord = random.randint(0, 19)
+    impact_y_coord = random.randint(0, 19)
+
+    window_surface[impact_x_coord][impact_y_coord] = "@"
+
+
+
+
+
     # add impact to visualization
 
+# Simulate multiple impacts
+for _ in range(35):  # Adjust the number of impacts as needed
+    simulate_impact()
 
+# for r in range (rows):
+#     simulate_impact()
+#     print(*window_surface[r])
+
+numeric_window_surface = np.array([[1 if cell == "@" else 0 for cell in row] for row in window_surface])
+
+plt.imshow(numeric_window_surface, cmap='Greys', interpolation='none')
+plt.title('Impact Simulation Visualization')
+plt.colorbar(label="Impact (0 = No, 1 = Yes)")
+plt.show()
 
 
 
