@@ -1,4 +1,5 @@
 import random
+import math
 
 rows, cols = (20, 20)
 arr = [[0]*cols]*rows
@@ -35,10 +36,11 @@ def simulate_meteorite():
             crater_constant = 0.3
             meteorite_density = 2000 # kg/m^3
 
+    kinetic_energy = float(0.5 * float(meteorite_mass) * float(math.pow(meteorite_velocity, 2))) # joules
+    crater_diameter = crater_constant * math.pow(kinetic_energy, 1/3) * math.pow(8.7, -0.165) * math.pow(2200, -0.3)
 
-
-
-
+    meteorite_info = [crater_diameter, meteorite_material, meteorite_diameter, meteorite_velocity]
+    return meteorite_info
 
 
 def simulate_impact():
