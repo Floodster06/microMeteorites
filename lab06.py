@@ -9,6 +9,8 @@ rows, cols = (20, 20)
 # Initialize arrays to store meteorite locations and diameters
 meteorite_locations = []
 meteorite_diameters = []
+non_duplicate_coords = []
+# have a second list, for non duplicate coords
 
 meteorites = 0
 
@@ -55,6 +57,17 @@ def simulate_impact():
     # Append location and diameter of the impact
     meteorite_locations.append([impact_x_coord, impact_y_coord])
 
+    # determine if duplicate or not
+    # for val in meteorite_diameters:
+    #     if val == meteorite_diameters[impact_x_coord][impact_y_coord]:
+    #
+    #         break
+    #     else:
+    #
+    #         non_duplicate_coords.append([impact_x_coord, impact_y_coord])
+
+
+
     # Simulate a meteorite and store its diameter and kinetic energy
     crater_diameter, _ = simulate_meteorite()
     meteorite_diameters.append(crater_diameter)
@@ -85,8 +98,28 @@ plt.xlabel('X Coordinate')
 plt.ylabel('Y Coordinate')
 plt.title('Meteorite Impact Locations with Crater Diameter')
 
-# Show the plot
-plt.show()
+
+
+simulating = True
+days = 0
+while simulating:
+
+    plt.show()
+
+    if len(non_duplicate_coords) == 200:
+
+        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section: " + str(days))
+
+    if len(non_duplicate_coords) == 400:
+
+        print("number of days until the entire window has one or more impacts in each 1 cm^2 section: " + str(days))
+        print("Total number of impacts for the entire 400 cm^2 area: " + str(meteorites))
+
+        simulating = False
 
 
 
+
+
+
+print(meteorite_diameters)
