@@ -9,8 +9,8 @@ rows, cols = (20, 20)
 # Initialize arrays to store meteorite locations and diameters
 meteorite_locations = []
 meteorite_diameters = []
-non_duplicate_coords = []
-# have a second list, for non duplicate coords
+non_duplicate_coords = []  # stores coordinates without duplicates
+unique_diameters = []  # stores diameters of unique impacts
 
 meteorites = 0
 
@@ -53,73 +53,64 @@ def simulate_impact():
     # Randomly generate impact coordinates
     impact_x_coord = random.randint(0, 19)
     impact_y_coord = random.randint(0, 19)
+    coord = (impact_x_coord, impact_y_coord)
 
-    # Append location and diameter of the impact
-    meteorite_locations.append([impact_x_coord, impact_y_coord])
+    # Check if this coordinate is a duplicate
+    if coord not in meteorite_locations:
+        # Append location and diameter of the impact
+        meteorite_locations.append(coord)
 
-    # determine if duplicate or not
-    # for val in meteorite_diameters:
-    #     if val == meteorite_diameters[impact_x_coord][impact_y_coord]:
-    #
-    #         break
-    #     else:
-    #
-    #         non_duplicate_coords.append([impact_x_coord, impact_y_coord])
+        # Simulate a meteorite and store its diameter and kinetic energy
+        crater_diameter, _ = simulate_meteorite()
+        meteorite_diameters.append(crater_diameter)
 
+        # Store diameter in unique_diameters for unique impacts
+        unique_diameters.append(crater_diameter)
 
+        non_duplicate_coords.append(coord)
 
-    # Simulate a meteorite and store its diameter and kinetic energy
-    crater_diameter, _ = simulate_meteorite()
-    meteorite_diameters.append(crater_diameter)
-
+    # Increment the meteorite counter, regardless of duplicate or not
     meteorites += 1
 
 
-# Simulate a large number of meteorite impacts
-for _ in range(20):  # Adjust the number of impacts as needed
-    simulate_impact()
-
-# Convert meteorite_locations to a numpy array for plotting
-meteorite_locations = np.array(meteorite_locations)
-meteorite_diameters = np.array(meteorite_diameters)
-
-# Create the scatter plot
-plt.figure(figsize=(10, 10))
-scatter = plt.scatter(meteorite_locations[:, 0], meteorite_locations[:, 1],
-                      s=meteorite_diameters * 1000,  # Scale up crater diameter for visualization
-                      c=meteorite_diameters, cmap='viridis', alpha=0.6, edgecolors='w')
-
-# Add color bar to represent crater diameter
-cbar = plt.colorbar(scatter)
-cbar.set_label('Crater Diameter (scaled)')
-
-# Label axes and title
-plt.xlabel('X Coordinate')
-plt.ylabel('Y Coordinate')
-plt.title('Meteorite Impact Locations with Crater Diameter')
-
-
-
+# Simulate impacts day by day until the entire grid is covered
 simulating = True
 days = 0
+
 while simulating:
+    simulate_impact()  # Generate new impact each day
+    days += 1
 
-    plt.show()
-
+    # Check if half the grid (200 unique coordinates) has been impacted
     if len(non_duplicate_coords) == 200:
+        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days)
 
-        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section: " + str(days))
-
+    # Check if the entire grid (400 unique coordinates) has been impacted
     if len(non_duplicate_coords) == 400:
-
-        print("number of days until the entire window has one or more impacts in each 1 cm^2 section: " + str(days))
-        print("Total number of impacts for the entire 400 cm^2 area: " + str(meteorites))
-
+        print("Number of days until the entire window has one or more impacts in each 1 cm^2 section:", days)
+        print("Total number of impacts for the entire 400 cm^2 area:", meteorites)
         simulating = False
 
+    # Plotting each day to visualize progress (optional, could slow down with large number of days)
+    if days % 10 == 0 or not simulating:  # Plot every 10 days for quicker visualization
+        # Convert meteorite_locations to a numpy array for plotting
+        meteorite_locations_np = np.array(meteorite_locations)
+        meteorite_diameters_np = np.array(meteorite_diameters)
+
+        # Create the scatter plot
+        plt.figure(figsize=(10, 10))
+        scatter = plt.scatter(meteorite_locations_np[:, 0], meteorite_locations_np[:, 1],
+                              s=meteorite_diameters_np * 1000,  # Scale up crater diameter for visualization
+                              c=meteorite_diameters_np, cmap='viridis', alpha=0.6, edgecolors='w')
+
+        # Add color bar to represent crater diameter
+        cbar = plt.colorbar(scatter)
+        cbar.set_label('Crater Diameter (scaled)')
+
+        # Label axes and title
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.title(f'Meteorite Impact Locations with Crater Diameter (Day {days})')
+        plt.show()
 
 
-
-
-
-print(meteorite_diameters)
