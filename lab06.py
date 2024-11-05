@@ -93,7 +93,7 @@ while simulating:
 
     # Check if half the grid (200 unique coordinates) has been impacted
     if len(non_duplicate_coords) == 200 and not halfway_plotted:
-        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days)
+        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days, " days.")
 
         # Calculate statistics
         total_area_covered = calculate_total_area_covered()
@@ -101,9 +101,9 @@ while simulating:
         max_impacts_per_cm2 = max(impact_count.values())
 
         # Display statistics
-        print("Average impacts per cm² at half coverage: ~", round(avg_impacts_per_cm2), 2, " impacts.")
-        print("Highest number of impacts on any cm² at half coverage:", max_impacts_per_cm2, " impacts.")
-        print("Total area covered at half coverage:", round(total_area_covered, 2), "cm².")
+        print("Average impacts per cm² at half coverage: ~", round(avg_impacts_per_cm2), 2, "impacts.")
+        print("Highest number of impacts on any cm² at half coverage:", max_impacts_per_cm2, "impacts.")
+        print("Total area covered at half coverage: ~", round(total_area_covered, 2), "cm².")
 
         # Plot meteorite impacts
         meteorite_locations_np = np.array(meteorite_locations)
@@ -117,7 +117,7 @@ while simulating:
 
         # Add color bar to represent crater diameter
         cbar = plt.colorbar(scatter)
-        cbar.set_label('Crater Diameter (scaled)')
+        cbar.set_label('Crater Diameter, Scaled (cm²)')
 
         # Label axes and title
         plt.xlabel('X Coordinate')
@@ -131,7 +131,7 @@ while simulating:
     if len(non_duplicate_coords) == 400:
         print("------------------------------------------------------")
 
-        print("Number of days until the entire window has one or more impacts in each 1 cm^2 section:", days)
+        print("Number of days until the entire window has one or more impacts in each 1 cm^2 section:", days, "days.")
 
         # Calculate statistics
         total_area_covered = calculate_total_area_covered()
@@ -139,9 +139,9 @@ while simulating:
         max_impacts_per_cm2 = max(impact_count.values())
 
         # Display statistics
-        print("Total impacts for the entire 400 cm² area:", meteorites)
-        print("Average impacts per cm² for the entire area: ~", round(avg_impacts_per_cm2, 2), " impacts.")
-        print("Highest number of impacts on any cm² for the entire area:", max_impacts_per_cm2, " impacts.")
+        print("Total impacts for the entire 400 cm² area:", meteorites, "impacts.")
+        print("Average impacts per cm² for the entire area: ~", round(avg_impacts_per_cm2, 2), "impacts.")
+        print("Highest number of impacts on any cm² for the entire area:", max_impacts_per_cm2, "impacts.")
         print("Total area covered for the entire area: ~", round(total_area_covered, 2), "cm².")
 
         # Plot meteorite impacts
@@ -156,7 +156,7 @@ while simulating:
 
         # Add color bar to represent crater diameter
         cbar = plt.colorbar(scatter)
-        cbar.set_label('Crater Diameter (scaled)')
+        cbar.set_label('Crater Diameter, Scaled (cm²)')
 
         # Label axes and title
         plt.xlabel('X Coordinate')
