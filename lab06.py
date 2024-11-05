@@ -1,8 +1,21 @@
+"""
+Lab06: Matrix (Loop 2D)
+Royal Military College of Canada
+CSE101
+Dr. Yawei Liang
+OCdt Flood 31226
+November 11, 2024
+
+The goal of this lab is to gain experience using a two-dimensional array, practice using loops, and using the rand() function to simulate a natural phenomenon.
+The program will simulate the impact of micro-meteorites on a space station in low-Earth orbit.
+As an added bonus, the program will generate a visualization of the 2D matrix (the space shuttle's surface) and use collision physics to determine the crater diameter upon impact with the space station.
+"""
 import random
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-
+from PIL import Image
+import io
 
 # Grid dimensions
 rows, cols = (20, 20)
@@ -10,44 +23,71 @@ rows, cols = (20, 20)
 # Initialize arrays to store meteorite locations and diameters
 meteorite_locations = []
 meteorite_diameters = []
+
 non_duplicate_coords = []  # stores coordinates without duplicates
 unique_diameters = {}  # stores the largest diameter at each unique impact coordinate
 
-meteorites = 0
+meteorites = 0  # accumulator to keep track of meteorites simulated so far
 
-# Dictionary to track the number of impacts per coordinate
-impact_count = {}
+impact_count = {}  # Dictionary to track the number of impacts per coordinate
 
 
 # Function to simulate a meteorite impact
 def simulate_meteorite():
+    # random.triangular(low, high, weight) = method to generate pseudorandom numbers between a certain range with a weighting (called a mode) to a specific number
     meteorite_diameter = random.triangular(0.0001, 0.1, 0.001)  # cm
-    meteorite_velocity = random.triangular(11000, 72000, 20000)  # m/s
     meteorite_mass = random.triangular(10e-9, 10e-6, 10e-8)  # kg
+    meteorite_velocity = random.triangular(11000, 72000, 20000)  # m/s
 
-    meteorite_materials = ["Iron-Nickel Alloy", "Silicates (Olivine/Pyroxene)", "Carbonaceous Chondrites"]
-    meteorite_material = random.choice(meteorite_materials)
+    # NOTE: error was made when determining variable; should be called meteorite_speed; velocity implies a direction when none is associated
+
+    meteorite_materials = ["Iron-Nickel Alloy", "Silicates (Olivine/Pyroxene)",
+                           "Carbonaceous Chondrites"]  # array of most common micro-meteorite materials
+    meteorite_material = random.choice(meteorite_materials)  # selects a random material from the list
 
     crater_constant = {"Iron-Nickel Alloy": 0.1, "Silicates (Olivine/Pyroxene)": 0.2, "Carbonaceous Chondrites": 0.3}[
-        meteorite_material]
+        meteorite_material]  # sets the crater constant (a constant used in one of the equations, dpenedant on impacting material) to it's respective number
 
-    # Calculate kinetic energy (joules)
-    kinetic_energy = 0.5 * meteorite_mass * meteorite_velocity ** 2
+    kinetic_energy = 0.5 * meteorite_mass * meteorite_velocity ** 2  # Calculate kinetic energy (joules)
 
-    # Calculate crater diameter
-    crater_diameter = crater_constant * (kinetic_energy ** (1 / 3)) * (8.7 ** -0.165) * (2200 ** -0.3)
+    # D = k x Ek^1/3 x g^-0.165 x density^-0.3
+    crater_diameter = crater_constant * (kinetic_energy ** (1 / 3)) * (8.7 ** -0.165) * (2200 ** -0.3)  # Calculate crater diameter (m)
 
-    return crater_diameter, kinetic_energy
+    radius = (crater_diameter * 100) / 2 # in cm
+    crater_area = (math.pi * (radius ** 2)) # cm^2
 
 
-# Calculate total area covered based on largest crater diameters at each coordinate
-def calculate_total_area_covered():
-    total_area = 0
-    for diameter in unique_diameters.values():
-        radius = diameter / 2  # Convert diameter to radius
-        area = math.pi * (radius ** 2)  # Area of circle
-        total_area += area
-    return total_area
+
+    return crater_area
+
+
+# Calculate white space area by converting plot to grayscale and analyzing pixels
+def calculate_white_space_area():
+    # Save the plot to a buffer instead of saving it to disk
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Load the image from buffer and convert to grayscale
+    image = Image.open(buf).convert("L")  # Convert to grayscale
+
+    # Convert image to numpy array
+    image_array = np.array(image)
+
+    # Define a threshold to classify white (uncovered) areas vs covered areas
+    threshold = 240
+    white_pixels = np.sum(image_array > threshold)
+    total_pixels = image_array.size
+
+    # Calculate white space and covered area
+    white_space_ratio = white_pixels / total_pixels
+    white_space_area = white_space_ratio * 400  # Total area in cm² is 400 cm² for a 20x20 grid
+    covered_area = 400 - white_space_area  # Covered area by difference
+
+    # Close the buffer
+    buf.close()
+
+    return white_space_area, covered_area
 
 
 # Simulate the meteorite impacts
@@ -65,7 +105,7 @@ def simulate_impact():
     impact_count[coord] += 1
 
     # Generate meteorite impact properties
-    crater_diameter, _ = simulate_meteorite()
+    crater_diameter = simulate_meteorite()
 
     # Check if this is a new coordinate
     if coord not in non_duplicate_coords:
@@ -96,74 +136,52 @@ while simulating:
     if len(non_duplicate_coords) == 200 and not halfway_plotted:
         print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days, " days.")
 
-        # Calculate statistics
-        total_area_covered = calculate_total_area_covered()
-        avg_impacts_per_cm2 = meteorites / 400
-        max_impacts_per_cm2 = max(impact_count.values())
-
-        # Display statistics
-        print("Average impacts per cm² at half coverage: ~", round(avg_impacts_per_cm2), 2, "impacts.")
-        print("Highest number of impacts on any cm² at half coverage:", max_impacts_per_cm2, "impacts.")
-        print("Total area covered at half coverage: ~", round(total_area_covered, 2), "cm².")
-
-        # Plot meteorite impacts
-        meteorite_locations_np = np.array(meteorite_locations)
-        meteorite_diameters_np = np.array(meteorite_diameters)
-
-        # Create the scatter plot
+        # Calculate white space and covered area
         plt.figure(figsize=(10, 10))
-        scatter = plt.scatter(meteorite_locations_np[:, 0], meteorite_locations_np[:, 1],
-                              s=meteorite_diameters_np * 1000,  # Scale up crater diameter for visualization
-                              c=meteorite_diameters_np, cmap='viridis', alpha=0.6, edgecolors='w')
-
-        # Add color bar to represent crater diameter
+        scatter = plt.scatter(*zip(*meteorite_locations),
+                              s=[d for d in meteorite_diameters],  # Scale up crater diameter for visualization
+                              c=meteorite_diameters, cmap='magma', alpha=0.6, edgecolors='black')
         cbar = plt.colorbar(scatter)
         cbar.set_label('Crater Diameter, Scaled (cm²)')
 
-        # Label axes and title
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
         plt.title(f'Meteorite Impact Locations with Crater Diameter (Day {days})')
-        plt.show()
+
+        # Calculate white space and covered area from the plot
+        white_space_area, covered_area = calculate_white_space_area()
+
+        # Display statistics
+        print("Total covered area at half coverage: ~", round(covered_area, 2), "cm².")
+        print("White (uncovered) area at half coverage: ~", round(white_space_area, 2), "cm².")
 
         halfway_plotted = True  # Set flag to prevent repeated plotting
+        plt.show()
 
     # Check if the entire grid (400 unique coordinates) has been impacted
     if len(non_duplicate_coords) == 400:
         print("------------------------------------------------------")
-
         print("Number of days until the entire window has one or more impacts in each 1 cm^2 section:", days, "days.")
 
-        # Calculate statistics
-        total_area_covered = calculate_total_area_covered()
-        avg_impacts_per_cm2 = meteorites / 400
-        max_impacts_per_cm2 = max(impact_count.values())
-
-        # Display statistics
-        print("Total impacts for the entire 400 cm² area:", meteorites, "impacts.")
-        print("Average impacts per cm² for the entire area: ~", round(avg_impacts_per_cm2, 2), "impacts.")
-        print("Highest number of impacts on any cm² for the entire area:", max_impacts_per_cm2, "impacts.")
-        print("Total area covered for the entire area: ~", round(total_area_covered, 2), "cm².")
-
-        # Plot meteorite impacts
-        meteorite_locations_np = np.array(meteorite_locations)
-        meteorite_diameters_np = np.array(meteorite_diameters)
-
-        # Create the scatter plot
+        # Generate and analyze final plot
         plt.figure(figsize=(10, 10))
-        scatter = plt.scatter(meteorite_locations_np[:, 0], meteorite_locations_np[:, 1],
-                              s=meteorite_diameters_np * 1000,  # Scale up crater diameter for visualization
-                              c=meteorite_diameters_np, cmap='viridis', alpha=0.6, edgecolors='w')
-
-        # Add color bar to represent crater diameter
+        scatter = plt.scatter(*zip(*meteorite_locations),
+                              s=[d for d in meteorite_diameters],  # Scale up crater diameter for visualization
+                              c=meteorite_diameters, cmap='magma', alpha=0.6, edgecolors='black')
         cbar = plt.colorbar(scatter)
         cbar.set_label('Crater Diameter, Scaled (cm²)')
 
-        # Label axes and title
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
         plt.title(f'Meteorite Impact Locations with Crater Diameter (Day {days})')
-        plt.show()
+
+        # Calculate white space and covered area from the plot
+        white_space_area, covered_area = calculate_white_space_area()
+
+        # Display statistics
+        print("Total covered area for the entire area: ~", round(covered_area, 2), "cm².")
+        print("White (uncovered) area for the entire area: ~", round(white_space_area, 2), "cm².")
 
         # Stop simulation
+        plt.show()  # Close the plot to free up memory
         simulating = False
