@@ -53,7 +53,7 @@ def simulate_meteorite():
     # D = k x Ek^1/3 x g^-0.165 x density^-0.3
     crater_diameter = crater_constant * (kinetic_energy ** (1 / 3)) * (8.7 ** -0.165) * (2200 ** -0.3)  # Calculate crater diameter (m)
 
-    radius = (crater_diameter * 100) / 2 # in cm
+    radius = (crater_diameter) / 2 # in cm
     crater_area = (math.pi * (radius ** 2)) # cm^2
 
 
@@ -134,12 +134,12 @@ while simulating:
 
     # Check if half the grid (200 unique coordinates) has been impacted
     if len(non_duplicate_coords) == 200 and not halfway_plotted:
-        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days, " days.")
+        print("Number of days until half of the window has one or more impacts in each 1 cm^2 section:", days, "days.")
 
         # Calculate white space and covered area
         plt.figure(figsize=(10, 10))
         scatter = plt.scatter(*zip(*meteorite_locations),
-                              s=[d for d in meteorite_diameters],  # Scale up crater diameter for visualization
+                              s=[d * 10000 for d in meteorite_diameters],  # Scale up crater diameter for visualization
                               c=meteorite_diameters, cmap='magma', alpha=0.6, edgecolors='black')
         cbar = plt.colorbar(scatter)
         cbar.set_label('Crater Diameter, Scaled (cm²)')
@@ -152,8 +152,10 @@ while simulating:
         white_space_area, covered_area = calculate_white_space_area()
 
         # Display statistics
-        print("Total covered area at half coverage: ~", round(covered_area, 2), "cm².")
-        print("White (uncovered) area at half coverage: ~", round(white_space_area, 2), "cm².")
+        print("Affected area of space shuttle: ~", round(covered_area, 2), "cm².")
+        print("Unaffected area of space shuttle: ~", round(white_space_area, 2), "cm².")
+        print("Average impacts per cm²: ~", (meteorites / 400), ".")
+        print("Most impacts at coordinates", max(impact_count, key=impact_count.get), "with", impact_count[max(impact_count, key=impact_count.get)], "total impacts.")
 
         halfway_plotted = True  # Set flag to prevent repeated plotting
         plt.show()
@@ -166,7 +168,7 @@ while simulating:
         # Generate and analyze final plot
         plt.figure(figsize=(10, 10))
         scatter = plt.scatter(*zip(*meteorite_locations),
-                              s=[d for d in meteorite_diameters],  # Scale up crater diameter for visualization
+                              s=[d * 10000 for d in meteorite_diameters],  # Scale up crater diameter for visualization
                               c=meteorite_diameters, cmap='magma', alpha=0.6, edgecolors='black')
         cbar = plt.colorbar(scatter)
         cbar.set_label('Crater Diameter, Scaled (cm²)')
@@ -179,9 +181,10 @@ while simulating:
         white_space_area, covered_area = calculate_white_space_area()
 
         # Display statistics
-        print("Total covered area for the entire area: ~", round(covered_area, 2), "cm².")
-        print("White (uncovered) area for the entire area: ~", round(white_space_area, 2), "cm².")
+        print("Affected area of space shuttle: ~", round(covered_area, 2), "cm².")
+        print("Unaffected area of space shuttle: ~", round(white_space_area, 2), "cm².")
+        print("Average impacts per cm²: ~", (meteorites/400), ".")
+        print("Most impacts at coordinates", max(impact_count, key=impact_count.get), "with", impact_count[max(impact_count, key=impact_count.get)], "total impacts.")
 
-        # Stop simulation
-        plt.show()  # Close the plot to free up memory
+        plt.show()
         simulating = False
