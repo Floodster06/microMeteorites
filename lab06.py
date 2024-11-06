@@ -10,6 +10,42 @@ The goal of this lab is to gain experience using a two-dimensional array, practi
 The program will simulate the impact of micro-meteorites on a space station in low-Earth orbit.
 As an added bonus, the program will generate a visualization of the 2D matrix (the space shuttle's surface) and use collision physics to determine the crater diameter upon impact with the space station.
 """
+
+# Algorithm:
+
+# Set the grid size (rows and columns)
+# Create lists to store various data points like meteorite impact locations, crater diameters, unique meteorite impact coordinates, etc.
+# Initialize accumulator for counting meteorites
+# Generate random meteorite properties
+# Calculate the meteorite's kinetic energy using the formula:
+#     E_k = 1/2 * m * v^2
+# Calculate the crater diameter using the formula:
+#     D = k * (E_k)^(1/3) * g^(-0.165) * density^(-0.3)
+# Calculate the crater area (in cm²) from the crater diameter
+# Generate a plot to visualize meteorite impacts on the grid
+# Save the plot to RAM and convert to grayscale
+# Compute the white space area and covered area in cm²
+# Randomly generate meteorite impact coordinates (between 0 and 19 for both x and y axes)
+# Check if the impact coordinates are new or have been impacted before
+# - If new, add them to the non_duplicate_coords list and initialize the crater diameter
+# - If already impacted, update the crater diameter with the largest one
+# Increment the total meteorite counter
+# Plot the meteorite impacts as a scatter plot on a 2D grid
+# - Use crater diameter to scale the size of each point in the plot
+# Initialize simulation flag as True and start on Day 1
+# Set a flag (halfway_plotted) to ensure the halfway plot only occurs once
+# Continue simulating impacts until the entire grid is impacted
+# Check if half the grid (200 unique coordinates) has been impacted
+#     - If true, print the number of days it took to reach 50% coverage
+#     - Call return_data(), show visualization
+# - Check if the entire grid (400 unique coordinates) has been impacted
+#     - If true, print the number of days it took to reach 100% coverage
+#     - Call return_data(), show visualization
+#     - End the simulation (simulating = False)
+# Increment the day counter each loop iteration
+
+# End of algorithm.
+
 import random
 import math
 import matplotlib.pyplot as plt # pip install matplotlib
